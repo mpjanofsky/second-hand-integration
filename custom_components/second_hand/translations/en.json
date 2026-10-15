@@ -1,0 +1,94 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add an Echo Wall Clock",
+        "data": {
+          "name": "Name"
+        }
+      },
+      "no_bluetooth": {
+        "title": "No Bluetooth here",
+        "description": "Home Assistant can't reach a Bluetooth Classic adapter, and the clock needs one. You can still add Second Hand for its Timers sensor, but nothing will be sent to a clock."
+      },
+      "pair_mode": {
+        "title": "Put the clock in pairing mode",
+        "description": "Press and hold the blue pairing button on the back of the clock (up to 10 seconds) until the light on the front pulses orange. Then select Submit.",
+        "data": {
+          "adapter": "Bluetooth adapter",
+          "timers_only": "Skip pairing (timers only)"
+        }
+      },
+      "choose": {
+        "title": "Which clock?",
+        "data": {
+          "address": "Clock"
+        },
+        "description": "More than one clock is in pairing mode. Pick one, or cancel, leave only one in pairing mode and try again."
+      },
+      "confirm": {
+        "title": "Pair with this clock?",
+        "description": "Found {name} ({address}).\n\nA clock works with one device at a time, so pairing it here disconnects it from anything it was paired with, such as an Echo. Select Submit to pair."
+      },
+      "timers": {
+        "title": "Which timers should this clock show?",
+        "description": "Select the voice assistants and timer helpers you want to show on this clock.",
+        "data": {
+          "assist_devices": "Voice assistants",
+          "helpers": "Timer helpers"
+        }
+      }
+    },
+    "error": {
+      "nothing_picked": "Pick at least one voice assistant or timer helper.",
+      "not_found": "No clock in pairing mode was found. Check that its light pulses orange and that it's within range of this Home Assistant's Bluetooth adapter, then try again.",
+      "pair_failed": "Pairing didn't work. Put the clock back in pairing mode, move it closer to the adapter, and try again."
+    },
+    "progress": {
+      "search": "Looking for a clock in pairing mode (up to 30 seconds)…",
+      "pair": "Pairing with the clock. This can take a few minutes…"
+    },
+    "abort": {
+      "already_configured": "This clock is already set up in this Home Assistant.",
+      "no_bluetooth": "Home Assistant can't reach a Bluetooth Classic adapter, and the clock needs one. In a container, check host networking and the host's /run/dbus mount."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Which timers should this clock show?",
+        "description": "Select the voice assistants and timer helpers you want to show on this clock.",
+        "data": {
+          "assist_devices": "Voice assistants",
+          "helpers": "Timer helpers"
+        }
+      }
+    },
+    "error": {
+      "nothing_picked": "Pick at least one voice assistant or timer helper."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "timers": {
+        "name": "Timers"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Connected"
+      }
+    },
+    "button": {
+      "sync_time": {
+        "name": "Sync time"
+      }
+    }
+  },
+  "issues": {
+    "assist_timers_unsupported": {
+      "title": "Voice timers aren't showing on the clock",
+      "description": "A Home Assistant update changed how voice timers work, so Second Hand can't read them. Timers from timer helpers still show. Check for a Second Hand update, or open an issue."
+    }
+  }
+}
