@@ -18,12 +18,17 @@ See what the clock shows without owning one: [try the clock simulator](https://m
 
 ## ✨ Features
 
-- ⏲️ **Voice timers on the clock:** timers you start with a voice assistant (Assist) show on the clock. Pause, resume, add time or cancel and the clock follows.
-- 🧰 **Timer helpers too:** Home Assistant `timer.*` helpers show on the clock, so an automation can put a countdown on your wall.
-- 🔔 **A pulse when time is up:** the clock pulses when a timer ends, and clears when you cancel it.
-- 🕐 **The right time:** Second Hand sets the clock's time when it connects and again every half hour, so daylight saving and time zone changes are picked up on their own.
-- 🔁 **Looks after itself:** if the clock loses power or goes out of range, it reconnects on its own and puts the running timers back.
-- 🔒 **Local only:** no account, no cloud, nothing to change on the clock.
+⏲️ **Voice timers on the clock:** timers you start with a voice assistant (Assist) show on the clock. Pause, resume, add time or cancel and the clock follows.
+
+🧰 **Timer helpers too:** Home Assistant `timer.*` helpers show on the clock, so an automation can put a countdown on your wall.
+
+🔔 **A pulse when time is up:** the clock pulses when a timer ends, and clears when you cancel it.
+
+🕐 **The right time:** Second Hand sets the clock's time when it connects and again every half hour, so daylight saving and time zone changes are picked up on their own.
+
+🔁 **Looks after itself:** if the clock loses power or goes out of range, it reconnects on its own and puts the running timers back.
+
+🔒 **Local only:** no account, no cloud, nothing to change on the clock.
 
 You choose which voice assistants and timer helpers each clock shows. Nothing is shown by default.
 
