@@ -4,7 +4,7 @@
 
 Second Hand gives your Echo Wall Clock a second life. It connects the clock straight to Home Assistant over Bluetooth, so the clock shows your timers and keeps the right time, the way it does with an Echo. The clock needs no changes.
 
-It has a twin for kiosks, [Second Hand for Kiosk Satellite](https://github.com/mpjanofsky/second-hand-plugin). This one is for Home Assistant itself.
+It has a twin for kiosks, [Second Hand for Kiosk Satellite](https://github.com/mpjanofsky/second-hand-plugin).
 
 <p align="center"><img src="docs/clock-timer.jpg" alt="An Echo Wall Clock showing a running timer as a lit blue arc on its LED ring" width="320"></p>
 
