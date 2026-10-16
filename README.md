@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/banner.svg" alt="Second Hand: your Echo Wall Clock, without the Echo" width="720"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mpjanofsky/second-hand-integration/main/docs/banner.svg" alt="Second Hand: your Echo Wall Clock, without the Echo" width="720"></p>
 
 <p align="center">
 <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/mpjanofsky/second-hand-integration?style=for-the-badge"></a>
@@ -14,7 +14,7 @@ It has a twin for kiosks, [Second Hand for Kiosk Satellite](https://github.com/m
 
 See what the clock shows without owning one: [try the clock simulator](https://mpjanofsky.github.io/echo-wall-clock/) in your browser.
 
-<p align="center"><img src="docs/clock-timer.jpg" alt="An Echo Wall Clock showing a running timer as a lit blue arc on its LED ring" width="320"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mpjanofsky/second-hand-integration/main/docs/clock-timer.jpg" alt="An Echo Wall Clock showing a running timer as a lit blue arc on its LED ring" width="320"></p>
 
 ## ✨ Features
 
@@ -59,7 +59,7 @@ Home Assistant in a container needs the host's Bluetooth: host networking and th
 4. Second Hand looks for the clock for up to 30 seconds. When it finds it, it asks you to confirm before pairing.
 5. Pick the voice assistants and timer helpers this clock should show.
 
-<p align="center"><img src="docs/screenshots/pairing-mode.png" alt="The pairing mode screen: press and hold the blue pairing button until the light pulses orange" width="400">&nbsp;<img src="docs/screenshots/pick-timers.png" alt="The screen where you pick which voice assistants and timer helpers the clock shows" width="400"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/mpjanofsky/second-hand-integration/main/docs/screenshots/pairing-mode.png" alt="The pairing mode screen: press and hold the blue pairing button until the light pulses orange" width="400">&nbsp;<img src="https://raw.githubusercontent.com/mpjanofsky/second-hand-integration/main/docs/screenshots/pick-timers.png" alt="The screen where you pick which voice assistants and timer helpers the clock shows" width="400"></p>
 
 Pairing can take a minute or two the first time: the first connection right after pairing often fails and Second Hand keeps trying on its own. To change the choices later, open **Settings > Devices & services > Second Hand** and choose **Configure**. The clock keeps its connection while you do.
 
@@ -93,7 +93,7 @@ The Echo Wall Clock is Amazon's. Second Hand talks to it over Bluetooth and does
 
 Found a bug, or tried it on a setup that isn't listed above? [Open an issue](https://github.com/mpjanofsky/second-hand-integration/issues).
 
-For developers: [building and changing it](docs/DEVELOPING.md).
+For developers: [building and changing it](https://github.com/mpjanofsky/second-hand-integration/blob/main/docs/DEVELOPING.md).
 
 🤖 Built with a lot of help from Claude, who worked with me on most of the design, code, tests and docs.
 
