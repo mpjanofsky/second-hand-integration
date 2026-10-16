@@ -1,16 +1,18 @@
 <p align="center"><img src="docs/banner.svg" alt="Second Hand: your Echo Wall Clock, without the Echo" width="720"></p>
 
 <p align="center">
-<a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/mpjanofsky/second-hand-integration"></a>
-<a href="https://github.com/mpjanofsky/second-hand-integration/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/mpjanofsky/second-hand-integration"></a>
-<a href="https://github.com/mpjanofsky/second-hand-integration/actions/workflows/validate.yml"><img alt="HACS and hassfest validation" src="https://img.shields.io/github/actions/workflow/status/mpjanofsky/second-hand-integration/validate.yml?label=validate"></a>
+<a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/mpjanofsky/second-hand-integration?style=for-the-badge"></a>
+<a href="https://github.com/mpjanofsky/second-hand-integration/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/mpjanofsky/second-hand-integration?style=for-the-badge"></a>
+<a href="https://github.com/mpjanofsky/second-hand-integration/actions/workflows/validate.yml"><img alt="HACS and hassfest validation" src="https://img.shields.io/github/actions/workflow/status/mpjanofsky/second-hand-integration/validate.yml?label=validate&style=for-the-badge"></a>
 </p>
 
 # ⏱️ Second Hand for Home Assistant
 
 Second Hand gives your Echo Wall Clock a second life. It connects the clock straight to Home Assistant over Bluetooth, so the clock shows your timers and keeps the right time, the way it does with an Echo. The clock needs no changes.
 
-It has a twin for kiosks, [Second Hand for Kiosk Satellite](https://github.com/mpjanofsky/second-hand-plugin).
+It has a twin for kiosks, [Second Hand for Kiosk Satellite](https://github.com/mpjanofsky/second-hand-plugin). This one is for Home Assistant itself.
+
+See what the clock shows without owning one: [try the clock simulator](https://mpjanofsky.github.io/echo-wall-clock/) in your browser.
 
 <p align="center"><img src="docs/clock-timer.jpg" alt="An Echo Wall Clock showing a running timer as a lit blue arc on its LED ring" width="320"></p>
 
