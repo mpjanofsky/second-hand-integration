@@ -36,7 +36,7 @@ You choose which voice assistants and timer helpers each clock shows. Nothing is
 
 | | |
 |---|---|
-| **You need** | An Echo Wall Clock, Home Assistant 2026.10.0 or newer, and a Bluetooth adapter on the Home Assistant host that supports Bluetooth Classic, within about 10 m of the clock. |
+| **You need** | An Echo Wall Clock (the Mickey Mouse Edition works too, confirmed by a user), Home Assistant 2026.10.0 or newer, and a Bluetooth adapter on the Home Assistant host that supports Bluetooth Classic, within about 10 m of the clock. |
 | **Tested on** | Home Assistant Container 2026.10.1 on a Raspberry Pi 3B with its built-in Bluetooth, one Echo Wall Clock, and a Kiosk Satellite voice satellite. |
 | **Not tested yet** | Home Assistant OS and Supervised installs, more than one voice satellite, and runs of a day or more. |
 | **Won't work** | A host with no Bluetooth (most NAS boxes, for example Synology), or too far from the clock. Bluetooth proxies (ESPHome, Shelly) can't help: they only do Bluetooth Low Energy and the clock only speaks Bluetooth Classic. |
@@ -80,6 +80,7 @@ Everything stays in your Home Assistant. Second Hand reads your timers and talks
 | What you see | What to try |
 |---|---|
 | **No Bluetooth here** during setup | Home Assistant can't reach a Bluetooth Classic adapter. In a container, check host networking and the `/run/dbus` mount. Setup stops until Home Assistant can. |
+| **My Mickey Mouse clock isn't found** | Update to v0.9.1 or newer. That edition advertises a different Bluetooth name, which older versions didn't look for. |
 | **No clock in pairing mode was found** | Hold the blue pairing button until the light pulses orange, stay within about 10 m, and try again. |
 | **Connected is off** | Check the clock has batteries and nothing else has taken the pairing. After pairing, the first connection can take a few minutes. |
 | The clock is stuck or won't connect | Take a battery out for about 10 seconds, put it back, put the clock in pairing mode again and pair from Home Assistant. |
