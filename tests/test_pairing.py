@@ -279,3 +279,12 @@ async def test_pair_mode_has_no_skip_box_by_default(hass: HomeAssistant) -> None
     result = await _to_pair_mode(hass, {ADAPTER: "00:11:22:33:44:55"})
     assert result["step_id"] == "pair_mode"
     assert CONF_TIMERS_ONLY not in result["data_schema"].schema
+
+
+def test_clock_names_include_the_mickey_mouse_edition():
+    from custom_components.second_hand.bluez import is_clock_name
+
+    assert is_clock_name("EchoWallClk10U")
+    assert is_clock_name("EWCMickeyMouse05B")
+    assert not is_clock_name("JBL Flip 5")
+    assert not is_clock_name("")

@@ -29,7 +29,12 @@ _LOGGER = logging.getLogger(__name__)
 
 BLUEZ = "org.bluez"
 SPP_UUID = "00001101-0000-1000-8000-00805f9b34fb"
-NAME_PREFIX = "EchoWallClk"
+# Bluetooth names the clocks advertise: the Echo Wall Clock, and the Mickey Mouse Edition (seen as EWCMickeyMouse05B).
+NAME_PREFIXES = ("EchoWallClk", "EWCMickeyMouse")
+
+
+def is_clock_name(name: str) -> bool:
+    return name.startswith(NAME_PREFIXES)
 DATA_CHANNEL = 4
 SOL_BLUETOOTH, BT_SECURITY, BT_SECURITY_MEDIUM = 274, 4, 2
 AGENT_PATH = "/io/github/second_hand/agent"
@@ -249,7 +254,7 @@ class BlueZ:
                     if not path.startswith(adapter + "/") or dev is None:
                         continue
                     name = dev.get("Name", Variant("s", "")).value
-                    if name.startswith(NAME_PREFIX) and "RSSI" in dev:  # RSSI only while it is being seen now
+                    if is_clock_name(name) and "RSSI" in dev:  # RSSI only while it is being seen now
                         found[dev["Address"].value] = name
                 if found:
                     break
