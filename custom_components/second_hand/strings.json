@@ -32,15 +32,16 @@
       },
       "timers": {
         "title": "Which timers should this clock show?",
-        "description": "Select the voice assistants and timer helpers you want to show on this clock.",
+        "description": "Select the voice assistants, timer helpers and Alexa devices you want to show on this clock. For Alexa, pick the \"Next timer\" sensors of Alexa Media Player.",
         "data": {
           "assist_devices": "Voice assistants",
-          "helpers": "Timer helpers"
+          "helpers": "Timer helpers",
+          "alexa_sensors": "Alexa timers (Alexa Media Player)"
         }
       }
     },
     "error": {
-      "nothing_picked": "Pick at least one voice assistant or timer helper.",
+      "nothing_picked": "Pick at least one voice assistant, timer helper or Alexa timer sensor.",
       "not_found": "No clock in pairing mode was found. Check that its light pulses orange and that it's within range of this Home Assistant's Bluetooth adapter, then try again.",
       "pair_failed": "Pairing didn't work. Put the clock back in pairing mode, move it closer to the adapter, and try again."
     },
@@ -57,15 +58,16 @@
     "step": {
       "init": {
         "title": "Which timers should this clock show?",
-        "description": "Select the voice assistants and timer helpers you want to show on this clock.",
+        "description": "Select the voice assistants, timer helpers and Alexa devices you want to show on this clock. For Alexa, pick the \"Next timer\" sensors of Alexa Media Player.",
         "data": {
           "assist_devices": "Voice assistants",
-          "helpers": "Timer helpers"
+          "helpers": "Timer helpers",
+          "alexa_sensors": "Alexa timers (Alexa Media Player)"
         }
       }
     },
     "error": {
-      "nothing_picked": "Pick at least one voice assistant or timer helper."
+      "nothing_picked": "Pick at least one voice assistant, timer helper or Alexa timer sensor."
     }
   },
   "entity": {

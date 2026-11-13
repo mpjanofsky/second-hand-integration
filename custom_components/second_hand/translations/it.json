@@ -1,0 +1,96 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Aggiungi un Echo Wall Clock",
+        "data": {
+          "name": "Nome"
+        }
+      },
+      "no_bluetooth": {
+        "title": "Bluetooth non disponibile",
+        "description": "Home Assistant non raggiunge un adattatore Bluetooth Classic, e l'orologio ne ha bisogno. Puoi comunque aggiungere Second Hand per il sensore Timer, ma nulla verrà inviato a un orologio."
+      },
+      "pair_mode": {
+        "title": "Metti l'orologio in modalità di associazione",
+        "description": "Tieni premuto il pulsante blu di associazione sul retro dell'orologio (fino a 10 secondi) finché la luce sul davanti non pulsa in arancione. Poi seleziona Invia.",
+        "data": {
+          "adapter": "Adattatore Bluetooth",
+          "timers_only": "Salta l'associazione (solo timer)"
+        }
+      },
+      "choose": {
+        "title": "Quale orologio?",
+        "data": {
+          "address": "Orologio"
+        },
+        "description": "Più di un orologio è in modalità di associazione. Scegline uno, oppure annulla, lascia in associazione un solo orologio e riprova."
+      },
+      "confirm": {
+        "title": "Associare questo orologio?",
+        "description": "Trovato {name} ({address}).\n\nUn orologio funziona con un solo dispositivo alla volta: associarlo qui lo scollega da ciò a cui era associato, per esempio un Echo. Seleziona Invia per associarlo."
+      },
+      "timers": {
+        "title": "Quali timer deve mostrare questo orologio?",
+        "description": "Seleziona gli assistenti vocali, gli helper timer e i dispositivi Alexa da mostrare su questo orologio. Per Alexa, scegli i sensori \"Prossimo timer\" di Alexa Media Player.",
+        "data": {
+          "assist_devices": "Assistenti vocali",
+          "helpers": "Helper timer",
+          "alexa_sensors": "Timer Alexa (Alexa Media Player)"
+        }
+      }
+    },
+    "error": {
+      "nothing_picked": "Scegli almeno un assistente vocale, un helper timer o un sensore timer Alexa.",
+      "not_found": "Nessun orologio in modalità di associazione trovato. Controlla che la luce pulsi in arancione e che sia nel raggio dell'adattatore Bluetooth di Home Assistant, poi riprova.",
+      "pair_failed": "L'associazione non è riuscita. Rimetti l'orologio in modalità di associazione, avvicinalo all'adattatore e riprova."
+    },
+    "progress": {
+      "search": "Ricerca di un orologio in modalità di associazione (fino a 30 secondi)…",
+      "pair": "Associazione con l'orologio in corso. Può richiedere qualche minuto…"
+    },
+    "abort": {
+      "already_configured": "Questo orologio è già configurato in questo Home Assistant.",
+      "no_bluetooth": "Home Assistant non raggiunge un adattatore Bluetooth Classic, e l'orologio ne ha bisogno. In un container, controlla la rete host e il mount di /run/dbus dell'host."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Quali timer deve mostrare questo orologio?",
+        "description": "Seleziona gli assistenti vocali, gli helper timer e i dispositivi Alexa da mostrare su questo orologio. Per Alexa, scegli i sensori \"Prossimo timer\" di Alexa Media Player.",
+        "data": {
+          "assist_devices": "Assistenti vocali",
+          "helpers": "Helper timer",
+          "alexa_sensors": "Timer Alexa (Alexa Media Player)"
+        }
+      }
+    },
+    "error": {
+      "nothing_picked": "Scegli almeno un assistente vocale, un helper timer o un sensore timer Alexa."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "timers": {
+        "name": "Timer"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Connesso"
+      }
+    },
+    "button": {
+      "sync_time": {
+        "name": "Sincronizza ora"
+      }
+    }
+  },
+  "issues": {
+    "assist_timers_unsupported": {
+      "title": "I timer vocali non compaiono sull'orologio",
+      "description": "Un aggiornamento di Home Assistant ha cambiato il funzionamento dei timer vocali, quindi Second Hand non riesce a leggerli. I timer degli helper continuano a comparire. Cerca un aggiornamento di Second Hand o apri una issue."
+    }
+  }
+}

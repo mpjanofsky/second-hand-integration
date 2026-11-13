@@ -15,6 +15,7 @@ from homeassistant.util import dt as dt_util
 from .const import DOMAIN, ISSUE_ASSIST_UNSUPPORTED, POLL_SECONDS
 from .reconcile import ClockTimer, Command, Reconciler
 from .sources import AssistTimers, HelperTimers
+from .sources_entities import EntityTimers, parse_alexa
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,11 +43,14 @@ class ClockController:
         assist_devices: list[str],
         helpers: list[str],
         link: ClockLink | None = None,
+        *,
+        alexa_sensors: list[str] | None = None,
     ) -> None:
         self.hass = hass
         self._reconciler = Reconciler(dt_util.get_default_time_zone())
         self._assist = AssistTimers(hass, assist_devices, self._changed, self._finished)
         self._helpers = HelperTimers(hass, helpers, self._changed, self._finished)
+        self._alexa = EntityTimers(hass, alexa_sensors or [], parse_alexa, self._changed, self._finished)
         self._link = link
         self._listeners: list[Callable[[], None]] = []
         self._unsubs: list[CALLBACK_TYPE] = []
@@ -83,12 +87,16 @@ class ClockController:
             self._link.start(self._link_up, self._link_down)
 
     @callback
-    def update_sources(self, assist_devices: list[str], helpers: list[str]) -> None:
+    def update_sources(
+        self, assist_devices: list[str], helpers: list[str], alexa_sensors: list[str] | None = None
+    ) -> None:
         """Change which timers are shown without touching the link to the clock."""
         self._assist.stop()
         self._helpers.stop()
+        self._alexa.stop()
         self._assist = AssistTimers(self.hass, assist_devices, self._changed, self._finished)
         self._helpers = HelperTimers(self.hass, helpers, self._changed, self._finished)
+        self._alexa = EntityTimers(self.hass, alexa_sensors or [], parse_alexa, self._changed, self._finished)
         self._start_sources()
         self._refresh(dt_util.utcnow())
 
@@ -106,10 +114,12 @@ class ClockController:
                 translation_key=ISSUE_ASSIST_UNSUPPORTED,
             )
         self._helpers.start()
+        self._alexa.start()
 
     async def async_stop(self) -> None:
         self._assist.stop()
         self._helpers.stop()
+        self._alexa.stop()
         while self._unsubs:
             self._unsubs.pop()()
         self._cancel_tick()
@@ -151,8 +161,12 @@ class ClockController:
         self._refresh(dt_util.utcnow())
 
     @callback
+    def _snapshot(self, now: datetime) -> dict[str, ClockTimer]:
+        return {**self._assist.snapshot(now), **self._helpers.snapshot(now), **self._alexa.snapshot(now)}
+
+    @callback
     def _refresh(self, now: datetime) -> None:
-        timers = {**self._assist.snapshot(now), **self._helpers.snapshot(now)}
+        timers = self._snapshot(now)
         changed = _visible(timers) != _visible(self.timers)
         self.timers = timers
         self._send(self._reconciler.update(now, timers))
@@ -164,7 +178,7 @@ class ClockController:
     @callback
     def _link_up(self) -> None:
         now = dt_util.utcnow()
-        self.timers = {**self._assist.snapshot(now), **self._helpers.snapshot(now)}
+        self.timers = self._snapshot(now)
         self._send(self._reconciler.on_connected(now, self.timers))
         self._notify()
 

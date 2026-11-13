@@ -6,6 +6,7 @@ CONF_ADDRESS = "address"
 CONF_ADAPTER = "adapter"
 CONF_ASSIST_DEVICES = "assist_devices"
 CONF_HELPERS = "helpers"
+CONF_ALEXA_SENSORS = "alexa_sensors"  # fork: Alexa Media Player next_timer sensors
 CONF_TIMERS_ONLY = "timers_only"
 
 ALLOW_TIMERS_ONLY = False

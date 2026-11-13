@@ -1,0 +1,183 @@
+# Attributes of sensor.echo_time_prossimo_timer (Alexa Media Player), two running timers (15 and 20 minutes),
+# copied from Developer tools > States on 2026-11-13 at 22:51 (+01:00). sorted_active was identical to
+# sorted_all; the YAML anchor keeps the file short without changing the data.
+recurrence: Never Repeat
+process_timestamp: '2026-11-13T22:51:22.712927+01:00'
+prior_value: '2026-11-13T23:06:21+01:00'
+total_active: 2
+total_all: 2
+status: 'ON'
+dismissed: null
+timer: null
+device_class: timestamp
+icon: mdi:timer-outline
+friendly_name: Echo time Prossimo timer
+brief:
+  active:
+    - id: A1P493D1054TAW-G095590263470531-4ed6dbdc-5a3c-4ca6-89e4-caae2feed9c7_TIMER
+      label: null
+      status: 'ON'
+      type: Timer
+      version: '3'
+      remainingTime: 884000
+      lastUpdatedDate: 1794606667125
+    - id: A1P493D1054TAW-G095590263470531-55ae7a73-0965-475e-9e49-2442d9dea25c_TIMER
+      label: null
+      status: 'ON'
+      type: Timer
+      version: '3'
+      remainingTime: 1184000
+      lastUpdatedDate: 1794606667540
+  all:
+    - id: A1P493D1054TAW-G095590263470531-4ed6dbdc-5a3c-4ca6-89e4-caae2feed9c7_TIMER
+      label: null
+      status: 'ON'
+      type: Timer
+      version: '3'
+      remainingTime: 884000
+      lastUpdatedDate: 1794606667125
+    - id: A1P493D1054TAW-G095590263470531-55ae7a73-0965-475e-9e49-2442d9dea25c_TIMER
+      label: null
+      status: 'ON'
+      type: Timer
+      version: '3'
+      remainingTime: 1184000
+      lastUpdatedDate: 1794606667540
+sorted_all: &timers
+  - alarmLabel: null
+    alarmTime: 0
+    assigner: null
+    automationId: null
+    createdDate: 1794606666828
+    deferredAtTime: null
+    deliveryMetadata: null
+    deliveryType: null
+    deviceName: null
+    deviceSerialNumber: G095590263470531
+    deviceType: A1P493D1054TAW
+    extensibleAttribute: null
+    followUpMetadata: null
+    geoLocationTriggerData: null
+    id: A1P493D1054TAW-G095590263470531-4ed6dbdc-5a3c-4ca6-89e4-caae2feed9c7_TIMER
+    instanceState: null
+    lastOccurrenceTimeInMilli: 0
+    lastTriggerTimeInUtc: null
+    lastUpdatedDate: 1794606667125
+    loopCount: null
+    mrmGroupContext: null
+    musicAlarmId: null
+    musicEntity: null
+    notificationIndex: 4ed6dbdc-5a3c-4ca6-89e4-caae2feed9c7_TIMER
+    originalDate: null
+    originalDurationInMillis: 900000
+    originalTime: null
+    personProfile: null
+    primaryDeviceState: null
+    provider: null
+    rRuleData: null
+    recurrenceEligibility: false
+    recurringPattern: null
+    remainingTime: 884000
+    reminderAppLabel: null
+    reminderLabel: null
+    reminderSubLabel: null
+    showDeregisteredWarning: null
+    skillInfo:
+      asin: null
+      iconUrl: null
+      id: AlexaTimeMachineService
+      name: null
+      stage: null
+      status: null
+    sleepTrackingAlarmProperties: null
+    snoozedToTime: null
+    sound:
+      displayName: Simple Timer
+      dynamicTone: false
+      folder: null
+      id: system_alerts_melodic_02
+      isChildDirected: false
+      numAssets: 0
+      pricing: null
+      providerId: ECHO
+      sampleUrl: https://s3.amazonaws.com/deeappservice.prod.notificationtones/system_alerts_melodic_02.mp3
+      sampleVideoUrl: null
+      skillUrl: null
+    status: 'ON'
+    targetPersonProfiles: null
+    taskMetadata: null
+    timeZoneId: null
+    timerLabel: null
+    tmwNotificationProperties: null
+    triggerTime: 1794607566809
+    type: Timer
+    version: '3'
+  - alarmLabel: null
+    alarmTime: 0
+    assigner: null
+    automationId: null
+    createdDate: 1794606667231
+    deferredAtTime: null
+    deliveryMetadata: null
+    deliveryType: null
+    deviceName: null
+    deviceSerialNumber: G095590263470531
+    deviceType: A1P493D1054TAW
+    extensibleAttribute: null
+    followUpMetadata: null
+    geoLocationTriggerData: null
+    id: A1P493D1054TAW-G095590263470531-55ae7a73-0965-475e-9e49-2442d9dea25c_TIMER
+    instanceState: null
+    lastOccurrenceTimeInMilli: 0
+    lastTriggerTimeInUtc: null
+    lastUpdatedDate: 1794606667540
+    loopCount: null
+    mrmGroupContext: null
+    musicAlarmId: null
+    musicEntity: null
+    notificationIndex: 55ae7a73-0965-475e-9e49-2442d9dea25c_TIMER
+    originalDate: null
+    originalDurationInMillis: 1200000
+    originalTime: null
+    personProfile: null
+    primaryDeviceState: null
+    provider: null
+    rRuleData: null
+    recurrenceEligibility: false
+    recurringPattern: null
+    remainingTime: 1184000
+    reminderAppLabel: null
+    reminderLabel: null
+    reminderSubLabel: null
+    showDeregisteredWarning: null
+    skillInfo:
+      asin: null
+      iconUrl: null
+      id: AlexaTimeMachineService
+      name: null
+      stage: null
+      status: null
+    sleepTrackingAlarmProperties: null
+    snoozedToTime: null
+    sound:
+      displayName: Simple Timer
+      dynamicTone: false
+      folder: null
+      id: system_alerts_melodic_02
+      isChildDirected: false
+      numAssets: 0
+      pricing: null
+      providerId: ECHO
+      sampleUrl: https://s3.amazonaws.com/deeappservice.prod.notificationtones/system_alerts_melodic_02.mp3
+      sampleVideoUrl: null
+      skillUrl: null
+    status: 'ON'
+    targetPersonProfiles: null
+    taskMetadata: null
+    timeZoneId: null
+    timerLabel: null
+    tmwNotificationProperties: null
+    triggerTime: 1794607867212
+    type: Timer
+    version: '3'
+sorted_active: *timers

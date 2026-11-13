@@ -26,6 +26,7 @@ from homeassistant.helpers.selector import (
 from .const import (
     CONF_ADAPTER,
     CONF_ADDRESS,
+    CONF_ALEXA_SENSORS,
     CONF_ASSIST_DEVICES,
     CONF_HELPERS,
     ALLOW_TIMERS_ONLY,
@@ -39,6 +40,7 @@ from .sources import timer_devices
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = "Echo Wall Clock"
+ALEXA_MEDIA_DOMAIN = "alexa_media"  # Alexa Media Player (HACS)
 
 
 def _timer_schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
@@ -57,12 +59,19 @@ def _timer_schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
             vol.Optional(CONF_HELPERS, default=current.get(CONF_HELPERS, [])): EntitySelector(
                 EntitySelectorConfig(domain="timer", multiple=True)
             ),
+            vol.Optional(CONF_ALEXA_SENSORS, default=current.get(CONF_ALEXA_SENSORS, [])): EntitySelector(
+                EntitySelectorConfig(
+                    integration=ALEXA_MEDIA_DOMAIN, domain="sensor", device_class="timestamp", multiple=True
+                )
+            ),
         }
     )
 
 
 def _picked_something(user_input: dict[str, Any]) -> bool:
-    return bool(user_input.get(CONF_ASSIST_DEVICES) or user_input.get(CONF_HELPERS))
+    return bool(
+        user_input.get(CONF_ASSIST_DEVICES) or user_input.get(CONF_HELPERS) or user_input.get(CONF_ALEXA_SENSORS)
+    )
 
 
 async def _bluetooth_adapters() -> dict[str, str] | None:
