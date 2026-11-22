@@ -22,6 +22,8 @@ See what the clock shows without owning one: [try the clock simulator](https://m
 
 🧰 **Timer helpers too:** Home Assistant `timer.*` helpers show on the clock, so an automation can put a countdown on your wall.
 
+🗣️ **Alexa timers too:** with [Alexa Media Player](https://github.com/alandtse/alexa_media_player) installed, pick the **Next timer** sensor of each Echo and every timer on it shows on the clock, paused ones included. Any other timestamp sensor works the same way, as one timer that ends at the sensor's time.
+
 🔔 **A pulse when time is up:** the clock pulses when a timer ends, and clears when you cancel it.
 
 🕐 **The right time:** Second Hand sets the clock's time when it connects and again every half hour, so daylight saving and time zone changes are picked up on their own.
@@ -30,7 +32,7 @@ See what the clock shows without owning one: [try the clock simulator](https://m
 
 🔒 **Local only:** no account, no cloud, nothing to change on the clock.
 
-You choose which voice assistants and timer helpers each clock shows. Nothing is shown by default.
+You choose which voice assistants, timer helpers and timer sensors each clock shows. Nothing is shown by default.
 
 ## 📱 Requirements
 
@@ -57,7 +59,7 @@ Home Assistant in a container needs the host's Bluetooth: host networking and th
 2. Name it, then choose your Bluetooth adapter if you have more than one.
 3. Press and hold the blue pairing button on the back of the clock (up to 10 seconds) until the light on the front pulses orange. That is pairing mode. Keep it pulsing, then select **Submit**.
 4. Second Hand looks for the clock for up to 30 seconds. When it finds it, it asks you to confirm before pairing.
-5. Pick the voice assistants and timer helpers this clock should show.
+5. Pick the voice assistants, timer helpers and timer sensors this clock should show. For Alexa timers, pick each Echo's `sensor.<echo>_next_timer`.
 
 <p align="center"><img src="https://raw.githubusercontent.com/mpjanofsky/second-hand-integration/main/docs/screenshots/pairing-mode.png" alt="The pairing mode screen: press and hold the blue pairing button until the light pulses orange" width="400">&nbsp;<img src="https://raw.githubusercontent.com/mpjanofsky/second-hand-integration/main/docs/screenshots/pick-timers.png" alt="The screen where you pick which voice assistants and timer helpers the clock shows" width="400"></p>
 
@@ -84,7 +86,8 @@ Everything stays in your Home Assistant. Second Hand reads your timers and talks
 | **No clock in pairing mode was found** | Hold the blue pairing button until the light pulses orange, stay within about 10 m, and try again. |
 | **Connected is off** | Check the clock has batteries and nothing else has taken the pairing. After pairing, the first connection can take a few minutes. |
 | The clock is stuck or won't connect | Take a battery out for about 10 seconds, put it back, put the clock in pairing mode again and pair from Home Assistant. |
-| The clock stays blank | Check that the voice assistant or helper that has your timer is picked in the integration's options. |
+| The clock stays blank | Check that the voice assistant, helper or timer sensor that has your timer is picked in the integration's options. |
+| An Alexa timer shows late or stays after it's cancelled | Second Hand only sees what Alexa Media Player reports. Turn on its push updates (HTTP2) so timer changes arrive within seconds instead of on its next poll. |
 
 ## 🙏 Credits
 

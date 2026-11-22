@@ -1,4 +1,4 @@
-"""Where timers come from: Assist (voice satellite) timers and timer helpers.
+"""Where timers come from: Assist (voice satellite) timers, timer helpers and timer sensors from other integrations.
 
 Each source reports the timers the user picked for a clock as ClockTimers, and calls back when they change
 or finish. Keys are unique across sources and stable for the life of a timer, so a timer keeps its clock token
@@ -16,12 +16,13 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import datetime, timedelta
+import json
 import logging
 import time
 from typing import Any
 
 from homeassistant.core import Event, HomeAssistant, State, callback
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.event import async_track_point_in_utc_time, async_track_state_change_event
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
@@ -31,6 +32,7 @@ _LOGGER = logging.getLogger(__name__)
 
 ASSIST_PREFIX = "assist:"
 HELPER_PREFIX = "helper:"
+SENSOR_PREFIX = "sensor:"
 
 TIMER_DATA = "intent.timer"  # homeassistant.components.intent.const.TIMER_DATA
 _TAP = f"{DOMAIN}_assist_tap"
@@ -237,4 +239,157 @@ def _helper_timer(entity_id: str, state: State | None) -> ClockTimer | None:
         return ClockTimer(key, None, name)
     if state.state == "active" and (ends := dt_util.parse_datetime(str(state.attributes.get("finishes_at", "")))):
         return ClockTimer(key, ends, name)
+    return None
+
+
+# ---------------------------------------------------------------- timer sensors from other integrations (public API)
+
+STALE_AFTER = timedelta(minutes=1)
+"""A sensor timer whose end is longer ago than this is dropped (the other integration may be slow to clear it)."""
+
+SAME_RING = timedelta(seconds=5)
+
+
+class SensorTimers:
+    """Timestamp sensors the user picked, for timers Home Assistant doesn't run itself (Alexa, for example).
+
+    A plain timestamp sensor is one timer that ends at its state. A sensor with Alexa Media Player's
+    `sorted_all` / `sorted_active` attributes (`sensor.<echo>_next_timer`) gives every timer of that Echo,
+    paused ones included. Those sensors fire no "finished" event, so this source schedules its own at each end.
+    """
+
+    def __init__(self, hass: HomeAssistant, entity_ids: list[str], on_change: OnChange, on_finished: OnFinished) -> None:
+        self._hass = hass
+        self._entities = list(entity_ids)
+        self._on_change = on_change
+        self._on_finished = on_finished
+        self._unsubs: list[Callable[[], None]] = []
+        self._alarm: Callable[[], None] | None = None
+        self._rung: dict[str, datetime] = {}  # key -> the end we already reported as finished
+
+    def start(self) -> bool:
+        if not self._entities:
+            return True
+        self._unsubs.append(async_track_state_change_event(self._hass, self._entities, self._state_changed))
+        self._schedule()
+        return True
+
+    def stop(self) -> None:
+        while self._unsubs:
+            self._unsubs.pop()()
+        self._cancel_alarm()
+
+    def snapshot(self, now: datetime) -> dict[str, ClockTimer]:
+        out: dict[str, ClockTimer] = {}
+        for entity_id in self._entities:
+            for timer in sensor_timers(entity_id, self._hass.states.get(entity_id)):
+                if timer.ends_at is None or timer.ends_at > now - STALE_AFTER:
+                    out[timer.key] = timer
+        return out
+
+    @callback
+    def _state_changed(self, event: Event) -> None:
+        self._schedule()
+        self._on_change()
+
+    @callback
+    def _schedule(self) -> None:
+        """Wake up at the next end time of a running timer."""
+        self._cancel_alarm()
+        now = dt_util.utcnow()
+        timers = self.snapshot(now)
+        for key in [k for k in self._rung if k not in timers]:
+            del self._rung[key]
+        ends = [t.ends_at for t in timers.values() if t.ends_at is not None and t.ends_at > now]
+        if ends:
+            self._alarm = async_track_point_in_utc_time(self._hass, self._ring, min(ends))
+
+    @callback
+    def _cancel_alarm(self) -> None:
+        if self._alarm is not None:
+            self._alarm()
+            self._alarm = None
+
+    @callback
+    def _ring(self, _now: datetime) -> None:
+        self._alarm = None
+        now = dt_util.utcnow()
+        rang = False
+        for timer in self.snapshot(now).values():
+            if timer.ends_at is None or timer.ends_at > now + timedelta(seconds=1):
+                continue
+            if (done := self._rung.get(timer.key)) is not None and abs(done - timer.ends_at) < SAME_RING:
+                continue
+            self._rung[timer.key] = timer.ends_at
+            self._on_finished(timer.key)
+            rang = True
+        self._schedule()
+        if rang:
+            self._on_change()
+
+
+def sensor_timers(entity_id: str, state: State | None) -> list[ClockTimer]:
+    """The timers one sensor stands for."""
+    if state is None:
+        return []
+    name = str(state.attributes.get("friendly_name", ""))
+    entries = _alexa_entries(state.attributes)
+    if entries is None:
+        ends = dt_util.parse_datetime(state.state) if state.state else None
+        return [ClockTimer(SENSOR_PREFIX + entity_id, ends, name)] if ends and ends.tzinfo else []
+    base = dt_util.parse_datetime(str(state.attributes.get("process_timestamp") or ""))
+    out = []
+    for index, entry in enumerate(entries):
+        try:
+            status = str(entry.get("status", "")).upper()
+            if status not in ("ON", "PAUSED"):
+                continue
+            key = f"{SENSOR_PREFIX}{entity_id}:{entry.get('id') or index}"
+            label = str(entry.get("timerLabel") or entry.get("label") or name)
+            if status == "PAUSED":
+                out.append(ClockTimer(key, None, label))
+            elif (ends := _alexa_end(entry, base)) is not None:
+                out.append(ClockTimer(key, ends, label))
+        except (AttributeError, TypeError, ValueError):
+            _LOGGER.debug("Skipping a timer from %s this version does not understand: %r", entity_id, entry)
+    return out
+
+
+def _alexa_entries(attributes: Any) -> list[dict[str, Any]] | None:
+    """Alexa Media Player's timer list, or None if the sensor doesn't have one.
+
+    `sorted_all` (paused timers too) is preferred over `sorted_active`. Older versions put a JSON string of
+    [id, timer] pairs there; newer ones a list of timer dicts.
+    """
+    for name in ("sorted_all", "sorted_active"):
+        raw = attributes.get(name)
+        if raw is None:
+            continue
+        if isinstance(raw, str):
+            try:
+                raw = json.loads(raw)
+            except ValueError:
+                return []
+        if not isinstance(raw, list):
+            return []
+        out = []
+        for item in raw:
+            if isinstance(item, (list, tuple)) and len(item) == 2 and isinstance(item[1], dict):
+                item = {"id": item[0], **item[1]}
+            if isinstance(item, dict):
+                out.append(item)
+        return out
+    return None
+
+
+def _alexa_end(entry: dict[str, Any], base: datetime | None) -> datetime | None:
+    """When a running Alexa timer ends: the time of that data plus remainingTime (ms), else triggerTime."""
+    remaining = entry.get("remainingTime")
+    if base is not None and base.tzinfo is not None and isinstance(remaining, (int, float)):
+        return dt_util.as_utc(base) + timedelta(milliseconds=remaining)
+    if isinstance(remaining, str) and (ends := dt_util.parse_datetime(remaining)) and ends.tzinfo:
+        return dt_util.as_utc(ends)
+    trigger = entry.get("triggerTime")
+    if isinstance(trigger, (int, float)) and trigger > 0:
+        return datetime.fromtimestamp(trigger / 1000, dt_util.UTC)
     return None
