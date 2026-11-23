@@ -28,6 +28,7 @@ from .const import (
     CONF_ADDRESS,
     CONF_ASSIST_DEVICES,
     CONF_HELPERS,
+    CONF_SENSORS,
     ALLOW_TIMERS_ONLY,
     CONF_TIMERS_ONLY,
     DOMAIN,
@@ -57,12 +58,15 @@ def _timer_schema(hass: HomeAssistant, current: dict[str, Any]) -> vol.Schema:
             vol.Optional(CONF_HELPERS, default=current.get(CONF_HELPERS, [])): EntitySelector(
                 EntitySelectorConfig(domain="timer", multiple=True)
             ),
+            vol.Optional(CONF_SENSORS, default=current.get(CONF_SENSORS, [])): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="timestamp", multiple=True)
+            ),
         }
     )
 
 
 def _picked_something(user_input: dict[str, Any]) -> bool:
-    return bool(user_input.get(CONF_ASSIST_DEVICES) or user_input.get(CONF_HELPERS))
+    return bool(user_input.get(CONF_ASSIST_DEVICES) or user_input.get(CONF_HELPERS) or user_input.get(CONF_SENSORS))
 
 
 async def _bluetooth_adapters() -> dict[str, str] | None:

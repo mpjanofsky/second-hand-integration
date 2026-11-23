@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable
 from datetime import timedelta
+import json
 from typing import Any
 from unittest.mock import patch
 
@@ -22,11 +23,12 @@ from custom_components.second_hand import protocol
 from custom_components.second_hand.const import (
     CONF_ASSIST_DEVICES,
     CONF_HELPERS,
+    CONF_SENSORS,
     DOMAIN,
     ISSUE_ASSIST_UNSUPPORTED,
 )
 from custom_components.second_hand.controller import ClockController
-from custom_components.second_hand.sources import TIMER_DATA
+from custom_components.second_hand.sources import TIMER_DATA, sensor_timers
 
 
 class FakeLink:
@@ -215,6 +217,97 @@ async def test_helper_timers(hass: HomeAssistant) -> None:
     await controller.async_stop()
 
 
+def _alexa_attrs(*timers: dict[str, Any], legacy: bool = False) -> dict[str, Any]:
+    """Attributes like Alexa Media Player's sensor.<echo>_next_timer."""
+    every = list(timers)
+    active = [t for t in every if t["status"] == "ON"]
+    if legacy:
+        return {
+            "process_timestamp": dt_util.now().isoformat(),
+            "sorted_all": json.dumps([[t["id"], t] for t in every]),
+            "sorted_active": json.dumps([[t["id"], t] for t in active]),
+        }
+    return {
+        "process_timestamp": dt_util.now().isoformat(),
+        "sorted_all": every,
+        "sorted_active": active,
+        "friendly_name": "Kitchen Echo Next timer",
+    }
+
+
+async def test_alexa_timer_sensor(hass: HomeAssistant) -> None:
+    link = FakeLink()
+    controller = ClockController(hass, [], [], link, sensors=["sensor.kitchen_next_timer"])
+    await controller.async_start()
+    link.up()
+    pasta = {"id": "t1", "status": "ON", "remainingTime": 300_000, "timerLabel": "pasta"}
+    eggs = {"id": "t2", "status": "ON", "remainingTime": 120_000, "timerLabel": None}
+    hass.states.async_set("sensor.kitchen_next_timer", "2026-01-01T00:00:00+00:00", _alexa_attrs(pasta, eggs))
+    await _settle(hass)
+    assert link.labels()[2:] == ["SetAlert", "SetAlert"]
+    assert controller.timers["sensor:sensor.kitchen_next_timer:t1"].name == "pasta"
+    assert controller.timers["sensor:sensor.kitchen_next_timer:t2"].name == "Kitchen Echo Next timer"
+    ends = controller.timers["sensor:sensor.kitchen_next_timer:t1"].ends_at
+    assert abs(ends - (dt_util.utcnow() + timedelta(minutes=5))) < timedelta(seconds=2)
+
+    # Pause one, cancel the other.
+    hass.states.async_set("sensor.kitchen_next_timer", "unknown", _alexa_attrs({**pasta, "status": "PAUSED"}))
+    await _settle(hass)
+    assert link.labels()[4:] == ["DeleteAlert", "DeleteAlert"]
+    assert controller.timers["sensor:sensor.kitchen_next_timer:t1"].paused
+    assert len(controller.timers) == 1
+    await controller.async_stop()
+
+
+async def test_alexa_timer_sensor_finishing_pulses_once(hass: HomeAssistant) -> None:
+    link = FakeLink()
+    controller = ClockController(hass, [], [], link, sensors=["sensor.kitchen_next_timer"])
+    await controller.async_start()
+    link.up()
+    tea = {"id": "t1", "status": "ON", "remainingTime": 1000}
+    hass.states.async_set("sensor.kitchen_next_timer", "x", _alexa_attrs(tea, legacy=True))
+    await _settle(hass)
+    await asyncio.sleep(2.3)  # it ends; the pulse follows a second later
+    await _settle(hass)
+    assert link.labels() == ["timeinfo", "ClearIndicator", "SetAlert", "timers=active"]
+    # Alexa still lists the ringing timer for a while: no second pulse.
+    hass.states.async_set("sensor.kitchen_next_timer", "x", hass.states.get("sensor.kitchen_next_timer").attributes)
+    await _settle(hass)
+    await asyncio.sleep(1.2)
+    await _settle(hass)
+    assert link.labels()[4:] == []
+    await controller.async_stop()
+
+
+async def test_plain_timestamp_sensor(hass: HomeAssistant) -> None:
+    ends = (dt_util.utcnow() + timedelta(minutes=7)).replace(microsecond=0)
+    link = FakeLink()
+    controller = ClockController(hass, [], [], link, sensors=["sensor.oven_done"])
+    hass.states.async_set("sensor.oven_done", ends.isoformat(), {"friendly_name": "Oven"})
+    await controller.async_start()
+    link.up()
+    assert link.labels() == ["timeinfo", "ClearIndicator", "SetAlert"]
+    assert controller.timers["sensor:sensor.oven_done"].ends_at == ends
+    hass.states.async_set("sensor.oven_done", "unknown", {})
+    await _settle(hass)
+    assert link.labels()[3:] == ["DeleteAlert"]
+    await controller.async_stop()
+
+
+def test_sensor_timers_ignore_what_they_do_not_understand(hass: HomeAssistant) -> None:
+    from homeassistant.core import State
+
+    assert sensor_timers("sensor.a", None) == []
+    assert sensor_timers("sensor.a", State("sensor.a", "unavailable")) == []
+    assert sensor_timers("sensor.a", State("sensor.a", "2026-01-01T10:00:00")) == []  # no time zone
+    assert sensor_timers("sensor.a", State("sensor.a", "x", {"sorted_all": "not json"})) == []
+    odd = State("sensor.a", "x", {"sorted_all": [{"status": "ON"}, {"status": "OFF", "remainingTime": 5}, 3]})
+    assert sensor_timers("sensor.a", odd) == []
+    by_trigger = State("sensor.a", "x", {"sorted_all": [{"id": "z", "status": "ON", "triggerTime": 1_800_000_000_000}]})
+    (timer,) = sensor_timers("sensor.a", by_trigger)
+    assert timer.ends_at.timestamp() == 1_800_000_000
+
+
 async def test_changing_sources_keeps_the_link(hass: HomeAssistant) -> None:
     ends = dt_util.utcnow() + timedelta(minutes=3)
     link = FakeLink()
@@ -291,6 +384,18 @@ async def test_config_flow_and_sensor(hass: HomeAssistant, intent: Any) -> None:
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
     assert hass.states.get("sensor.kitchen_clock_timers").state == "0"
+
+    # Options: an Alexa timer sensor alone is enough.
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {CONF_ASSIST_DEVICES: [], CONF_HELPERS: [], CONF_SENSORS: ["sensor.kitchen_next_timer"]}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    hass.states.async_set(
+        "sensor.kitchen_next_timer", "x", _alexa_attrs({"id": "t1", "status": "ON", "remainingTime": 60_000})
+    )
+    await _settle(hass)
+    assert hass.states.get("sensor.kitchen_clock_timers").state == "1"
 
     assert await hass.config_entries.async_unload(entry.entry_id)
     assert type(intent.handlers) is dict

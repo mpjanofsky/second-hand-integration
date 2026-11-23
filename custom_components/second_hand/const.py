@@ -6,6 +6,7 @@ CONF_ADDRESS = "address"
 CONF_ADAPTER = "adapter"
 CONF_ASSIST_DEVICES = "assist_devices"
 CONF_HELPERS = "helpers"
+CONF_SENSORS = "timer_sensors"
 CONF_TIMERS_ONLY = "timers_only"
 
 ALLOW_TIMERS_ONLY = False

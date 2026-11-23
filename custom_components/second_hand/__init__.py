@@ -7,7 +7,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import CONF_ADAPTER, CONF_ADDRESS, CONF_ASSIST_DEVICES, CONF_HELPERS
+from .const import CONF_ADAPTER, CONF_ADDRESS, CONF_ASSIST_DEVICES, CONF_HELPERS, CONF_SENSORS
 from .controller import ClockController
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.SENSOR]
@@ -20,6 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EchoWallClockConfigEntry
         hass,
         list(entry.options.get(CONF_ASSIST_DEVICES, [])),
         list(entry.options.get(CONF_HELPERS, [])),
+        sensors=list(entry.options.get(CONF_SENSORS, [])),
     )
     stop_call_ins = None
     if address := entry.data.get(CONF_ADDRESS):
@@ -87,4 +88,5 @@ async def _options_updated(hass: HomeAssistant, entry: EchoWallClockConfigEntry)
     entry.runtime_data.update_sources(
         list(entry.options.get(CONF_ASSIST_DEVICES, [])),
         list(entry.options.get(CONF_HELPERS, [])),
+        list(entry.options.get(CONF_SENSORS, [])),
     )
