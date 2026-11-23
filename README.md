@@ -49,6 +49,14 @@ Home Assistant in a container needs the host's Bluetooth: host networking and th
 
 ## 🚀 Install
 
+On Home Assistant 2026.11 or newer, use the Community Marketplace:
+
+1. Go to **Settings > Marketplace** and select **Add from link**.
+2. Enter `mpjanofsky/second-hand-integration` and select **Add**.
+3. Open **Second Hand** and select **Install**, then **Install** again.
+
+On Home Assistant 2026.10, use HACS:
+
 1. In HACS, open the menu and choose **Custom repositories**.
 2. Add `https://github.com/mpjanofsky/second-hand-integration` with the type **Integration**.
 3. Find **Second Hand** in HACS, download it, and restart Home Assistant.
