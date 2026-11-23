@@ -328,6 +328,29 @@ async def test_alexa_timer_rings_once_while_alexa_keeps_reporting_it(hass: HomeA
     source.stop()
 
 
+async def test_alexa_timer_that_already_ended_does_not_pulse(hass: HomeAssistant) -> None:
+    """A timer first seen after its end (Alexa reported late, or HA restarted) is not pulsed late."""
+    t0 = dt_util.utcnow().replace(microsecond=0)
+    clock = _FakeNow(t0)
+    finished: list[str] = []
+    source = SensorTimers(hass, ["sensor.kitchen_next_timer"], lambda: None, finished.append)
+    attrs = {
+        "process_timestamp": (t0 - timedelta(seconds=30)).isoformat(),
+        "sorted_all": [
+            {"id": "old", "status": "ON", "remainingTime": 10_000},  # ended 20 s ago
+            {"id": "new", "status": "ON", "remainingTime": 60_000},  # ends in 30 s
+        ],
+    }
+    with patch("custom_components.second_hand.sources.dt_util", clock):
+        hass.states.async_set("sensor.kitchen_next_timer", "x", attrs)
+        source._schedule()
+        clock.now = t0 + timedelta(seconds=30)
+        source._cancel_alarm()
+        source._ring(clock.now)
+    assert finished == ["sensor:sensor.kitchen_next_timer:new"]
+    source.stop()
+
+
 async def test_plain_timestamp_sensor(hass: HomeAssistant) -> None:
     ends = (dt_util.utcnow() + timedelta(minutes=7)).replace(microsecond=0)
     link = FakeLink()

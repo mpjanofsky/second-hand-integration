@@ -249,6 +249,9 @@ STALE_AFTER = timedelta(minutes=1)
 
 SAME_RING = timedelta(seconds=5)
 
+LATE_RING = timedelta(seconds=10)
+"""An end further back than this is not pulsed: like the other sources, nothing is replayed late."""
+
 
 class SensorTimers:
     """Timestamp sensors the user picked, for timers Home Assistant doesn't run itself (Alexa, for example).
@@ -320,7 +323,7 @@ class SensorTimers:
         now = dt_util.utcnow()
         rang = False
         for timer in self.snapshot(now).values():
-            if timer.ends_at is None or timer.ends_at > now + timedelta(seconds=1):
+            if timer.ends_at is None or not now - LATE_RING <= timer.ends_at <= now + timedelta(seconds=1):
                 continue
             if timer.key in self._rung:
                 continue
