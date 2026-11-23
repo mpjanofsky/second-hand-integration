@@ -22,7 +22,7 @@ See what the clock shows without owning one: [try the clock simulator](https://m
 
 🧰 **Timer helpers too:** Home Assistant `timer.*` helpers show on the clock, so an automation can put a countdown on your wall.
 
-🗣️ **Alexa timers too:** with [Alexa Media Player](https://github.com/alandtse/alexa_media_player) installed, pick the **Next timer** sensor of each Echo and every timer on it shows on the clock, paused ones included. Any other timestamp sensor works the same way, as one timer that ends at the sensor's time.
+🗣️ **Alexa and other timer sensors:** pick a timestamp sensor and the clock counts down to it. With [Alexa Media Player](https://github.com/alandtse/alexa_media_player), pick each Echo's **Next timer** sensor and every timer on that Echo shows, paused ones included.
 
 🔔 **A pulse when time is up:** the clock pulses when a timer ends, and clears when you cancel it.
 
@@ -30,7 +30,7 @@ See what the clock shows without owning one: [try the clock simulator](https://m
 
 🔁 **Looks after itself:** if the clock loses power or goes out of range, it reconnects on its own and puts the running timers back.
 
-🔒 **Local only:** no account, no cloud, nothing to change on the clock.
+🔒 **Local:** Second Hand needs no account and no cloud, and changes nothing on the clock. It reads timers from Home Assistant and talks to the clock over Bluetooth.
 
 You choose which voice assistants, timer helpers and timer sensors each clock shows. Nothing is shown by default.
 
@@ -75,7 +75,7 @@ Pairing can take a minute or two the first time: the first connection right afte
 
 ## 🔒 Privacy
 
-Everything stays in your Home Assistant. Second Hand reads your timers and talks to the clock over Bluetooth. It doesn't use the internet and sends nothing about you or your home anywhere.
+Everything stays in your Home Assistant. Second Hand reads your timers and talks to the clock over Bluetooth. It doesn't use the internet and sends nothing about you or your home anywhere. Timer sensors are read like any other Home Assistant state; if one comes from a cloud integration such as Alexa Media Player, that integration does its own talking to the cloud.
 
 ## 🧰 Troubleshooting
 
@@ -87,7 +87,7 @@ Everything stays in your Home Assistant. Second Hand reads your timers and talks
 | **Connected is off** | Check the clock has batteries and nothing else has taken the pairing. After pairing, the first connection can take a few minutes. |
 | The clock is stuck or won't connect | Take a battery out for about 10 seconds, put it back, put the clock in pairing mode again and pair from Home Assistant. |
 | The clock stays blank | Check that the voice assistant, helper or timer sensor that has your timer is picked in the integration's options. |
-| An Alexa timer shows late or stays after it's cancelled | Second Hand only sees what Alexa Media Player reports. Turn on its push updates (HTTP2) so timer changes arrive within seconds instead of on its next poll. |
+| An Alexa timer shows late or stays after it's cancelled | Second Hand only sees what Alexa Media Player reports. With its push connection working, changes arrive within seconds; without it they wait for its next poll, a minute or more. |
 
 ## 🙏 Credits
 
