@@ -28,7 +28,7 @@ from custom_components.second_hand.const import (
     ISSUE_ASSIST_UNSUPPORTED,
 )
 from custom_components.second_hand.controller import ClockController
-from custom_components.second_hand.sources import TIMER_DATA, sensor_timers
+from custom_components.second_hand.sources import TIMER_DATA, SensorTimers, sensor_timers
 
 
 class FakeLink:
@@ -277,6 +277,55 @@ async def test_alexa_timer_sensor_finishing_pulses_once(hass: HomeAssistant) -> 
     await _settle(hass)
     assert link.labels()[4:] == []
     await controller.async_stop()
+
+
+class _FakeNow:
+    """dt_util for sources.py with a clock the test moves."""
+
+    def __init__(self, now: Any) -> None:
+        self.now = now
+
+    def utcnow(self) -> Any:
+        return self.now
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(dt_util, name)
+
+
+async def test_alexa_timer_rings_once_while_alexa_keeps_reporting_it(hass: HomeAssistant) -> None:
+    """Alexa Media Player refreshes about once a minute. A ringing timer it still lists has a new
+    process_timestamp each time, so its computed end moves; that must not pulse the clock again."""
+    t0 = dt_util.utcnow().replace(microsecond=0)
+    clock = _FakeNow(t0)
+    finished: list[str] = []
+    source = SensorTimers(hass, ["sensor.kitchen_next_timer"], lambda: None, finished.append)
+
+    def report(at: Any, **timer: Any) -> None:
+        attrs = {"process_timestamp": at.isoformat(), "sorted_all": [{"id": "t1", "status": "ON", **timer}]}
+        hass.states.async_set("sensor.kitchen_next_timer", "x", attrs)
+        source._schedule()
+
+    def ring() -> None:  # what the source's own alarm does at an end time
+        source._cancel_alarm()
+        source._ring(clock.now)
+
+    with patch("custom_components.second_hand.sources.dt_util", clock):
+        report(t0, remainingTime=60_000)
+        clock.now = t0 + timedelta(seconds=60)
+        ring()
+        assert len(finished) == 1
+        for later in (75, 135):  # Alexa's next refreshes, timer still listed at 0
+            clock.now = t0 + timedelta(seconds=later)
+            report(clock.now, remainingTime=0)
+            ring()
+        assert len(finished) == 1
+        # Paused and resumed, it is a new run: its end rings again.
+        report(clock.now, status="PAUSED", remainingTime=0)
+        report(clock.now, remainingTime=10_000)
+        clock.now += timedelta(seconds=10)
+        ring()
+        assert len(finished) == 2
+    source.stop()
 
 
 async def test_plain_timestamp_sensor(hass: HomeAssistant) -> None:

@@ -265,7 +265,7 @@ class SensorTimers:
         self._on_finished = on_finished
         self._unsubs: list[Callable[[], None]] = []
         self._alarm: Callable[[], None] | None = None
-        self._rung: dict[str, datetime] = {}  # key -> the end we already reported as finished
+        self._rung: set[str] = set()  # keys already reported as finished in their current run
 
     def start(self) -> bool:
         if not self._entities:
@@ -298,8 +298,12 @@ class SensorTimers:
         self._cancel_alarm()
         now = dt_util.utcnow()
         timers = self.snapshot(now)
-        for key in [k for k in self._rung if k not in timers]:
-            del self._rung[key]
+        # A timer rings once per run. Alexa may keep listing a ringing timer, its computed end moving with each
+        # refresh, so forget the ring only once the timer is gone, paused, or set to end well in the future again.
+        for key in list(self._rung):
+            timer = timers.get(key)
+            if timer is None or timer.ends_at is None or timer.ends_at > now + SAME_RING:
+                self._rung.discard(key)
         ends = [t.ends_at for t in timers.values() if t.ends_at is not None and t.ends_at > now]
         if ends:
             self._alarm = async_track_point_in_utc_time(self._hass, self._ring, min(ends))
@@ -318,9 +322,9 @@ class SensorTimers:
         for timer in self.snapshot(now).values():
             if timer.ends_at is None or timer.ends_at > now + timedelta(seconds=1):
                 continue
-            if (done := self._rung.get(timer.key)) is not None and abs(done - timer.ends_at) < SAME_RING:
+            if timer.key in self._rung:
                 continue
-            self._rung[timer.key] = timer.ends_at
+            self._rung.add(timer.key)
             self._on_finished(timer.key)
             rang = True
         self._schedule()
