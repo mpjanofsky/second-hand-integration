@@ -105,18 +105,23 @@ class BluetoothLink:
             self._set(LinkState.CONNECTING)
             conn: Connection | None = None
             try:
-                conn = await asyncio.wait_for(self._opener(), CONNECT_TIMEOUT)
-                info = await asyncio.wait_for(self._handshake(conn), HANDSHAKE_TIMEOUT)
-            except (OSError, TimeoutError, ClockLinkError) as err:
+                try:
+                    conn = await asyncio.wait_for(self._opener(), CONNECT_TIMEOUT)
+                    info = await asyncio.wait_for(self._handshake(conn), HANDSHAKE_TIMEOUT)
+                except (OSError, TimeoutError, ClockLinkError) as err:
+                    failures += 1
+                    reason = _reason(err)
+                else:
+                    failures = 0
+                    self._set(LinkState.CONNECTED, info=info)
+                    reason = await self._session(conn)
+            finally:
+                # Also runs when async_stop() cancels us mid-connect, mid-handshake or mid-session.
                 if conn is not None:
                     conn.close()
-                failures += 1
-                await self._pause(failures, _reason(err))
-                continue
-            failures = 0
-            self._set(LinkState.CONNECTED, info=info)
-            reason = await self._session(conn)
-            await self._pause(1, reason)
+                    if self.status.state is LinkState.CONNECTED:
+                        self._on_down()
+            await self._pause(max(1, failures), reason)
 
     async def _handshake(self, conn: Connection) -> protocol.ClockInfo:
         self._framer, self._deframer, info = await handshake(conn)
@@ -141,9 +146,6 @@ class BluetoothLink:
             for task in (reader, writer):
                 with contextlib.suppress(asyncio.CancelledError, OSError):
                     await task
-            conn.close()
-            if self.status.state is LinkState.CONNECTED:
-                self._on_down()
         return reason
 
     async def _reader(self, conn: Connection) -> str:

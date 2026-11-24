@@ -114,13 +114,17 @@ async def test_wake_skips_the_backoff(monkeypatch: pytest.MonkeyPatch) -> None:
     await link.async_stop()
 
 
-async def test_stop_is_prompt_and_leaves_nothing_running() -> None:
+async def test_stop_during_handshake_closes_the_connection() -> None:
     clock = FakeClock(["silent"] * 10)
-    link, _ = await started(clock)
-    await asyncio.sleep(0.05)
+    link, ev = await started(clock)
+    await until(lambda: clock.received == ["Discover"])
+    conn = clock.current
+    assert conn is not None and not conn.closed
     await asyncio.wait_for(link.async_stop(), 0.5)
-    pending = [t for t in asyncio.all_tasks() if t is not asyncio.current_task() and not t.done()]
-    assert not [t for t in pending if "Echo Wall Clock" in t.get_name()]
+    assert conn.closed
+    assert link.status.state is LinkState.STOPPED
+    assert ev.log == []
+    assert not any(t.get_name() == "Second Hand link" for t in asyncio.all_tasks())
 
 
 def test_clock_info_from_response() -> None:
